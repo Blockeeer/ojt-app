@@ -40,13 +40,13 @@ export default function Navbar() {
             <NavLink key={path} to={path} className="flex-1">
               {({ isActive }) => (
                 <div className={`flex flex-col items-center justify-center gap-0.5 py-2 px-3 rounded-2xl transition-all duration-200 mx-0.5 ${
-                  isActive ? 'bg-indigo-50 text-indigo-600' : 'text-slate-400 hover:text-slate-600'
+                  isActive ? 'bg-sky-50 text-sky-600' : 'text-slate-400 hover:text-slate-600'
                 }`}>
                   <div className={`transition-transform duration-200 ${isActive ? 'scale-110' : ''}`}>
                     <Icon />
                   </div>
                   <span className={`text-[10px] font-bold tracking-wide ${
-                    isActive ? 'text-indigo-600' : 'text-slate-400'
+                    isActive ? 'text-sky-600' : 'text-slate-400'
                   }`}>
                     {label}
                   </span>

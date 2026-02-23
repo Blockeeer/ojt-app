@@ -13,7 +13,7 @@ export default defineConfig({
         name: 'OJT Tracker',
         short_name: 'OJT Tracker',
         description: 'Track your OJT hours, attendance, and projected completion date.',
-        theme_color: '#4F46E5',
+        theme_color: '#0EA5E9',
         background_color: '#F9FAFB',
         display: 'standalone',
         orientation: 'portrait',

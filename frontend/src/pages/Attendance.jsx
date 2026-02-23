@@ -100,14 +100,14 @@ export default function Attendance() {
     <div className="space-y-5">
 
       {/* ── Page Header ── */}
-      <div className="relative -mx-4 px-4 pt-10 pb-6 bg-gradient-to-br from-violet-600 to-indigo-700 overflow-hidden">
+      <div className="relative -mx-4 px-4 pt-10 pb-6 bg-gradient-to-br from-sky-400 via-sky-500 to-blue-600 overflow-hidden">
         <div className="absolute -top-4 -right-4 w-24 h-24 bg-white/10 rounded-full blur-xl" />
         <div className="relative">
-          <p className="text-violet-200 text-xs font-semibold uppercase tracking-widest mb-1">Log Time</p>
+          <p className="text-sky-100 text-xs font-semibold uppercase tracking-widest mb-1">Log Time</p>
           <h1 className="text-2xl font-extrabold text-white tracking-tight">
             {editId ? 'Edit Attendance' : 'Attendance'}
           </h1>
-          <p className="text-violet-200 text-xs mt-1">
+          <p className="text-sky-100 text-xs mt-1">
             {attendance.length} {attendance.length === 1 ? 'entry' : 'entries'} recorded
           </p>
         </div>
@@ -119,7 +119,7 @@ export default function Attendance() {
           <h2 className="font-bold text-slate-800">
             {editId ? 'Edit Entry' : 'Log Attendance'}
           </h2>
-          {editId && <span className="badge-indigo">Editing</span>}
+          {editId && <span className="badge-blue">Editing</span>}
         </div>
 
         {errors.length > 0 && (
@@ -181,7 +181,7 @@ export default function Attendance() {
                 type="checkbox"
                 checked={isAbsent}
                 onChange={(e) => setIsAbsent(e.target.checked)}
-                className="w-4 h-4 rounded border-slate-300 text-indigo-600 focus:ring-indigo-500"
+                className="w-4 h-4 rounded border-slate-300 text-sky-600 focus:ring-sky-500"
               />
               <div>
                 <p className="text-sm font-semibold text-slate-700">Mark as Absent</p>
@@ -224,15 +224,15 @@ export default function Attendance() {
               </div>
 
               {previewHours !== null && (
-                <div className="bg-gradient-to-r from-indigo-50 to-violet-50 border border-indigo-100 rounded-xl p-4">
+                <div className="bg-gradient-to-r from-sky-50 to-blue-50 border border-sky-100 rounded-xl p-4">
                   <div className="flex items-center justify-between">
                     <div>
-                      <p className="text-xs font-bold text-indigo-500 uppercase tracking-wider">Calculated Hours</p>
-                      <p className="text-[10px] text-indigo-400 mt-0.5">
+                      <p className="text-xs font-bold text-sky-500 uppercase tracking-wider">Calculated Hours</p>
+                      <p className="text-[10px] text-sky-400 mt-0.5">
                         Lunch {formatTime12h(phase?.lunchStart)}–{formatTime12h(phase?.lunchEnd)} auto-deducted
                       </p>
                     </div>
-                    <p className="text-3xl font-extrabold text-indigo-600">{previewHours}h</p>
+                    <p className="text-3xl font-extrabold text-sky-600">{previewHours}h</p>
                   </div>
                 </div>
               )}

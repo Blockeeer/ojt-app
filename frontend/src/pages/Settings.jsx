@@ -8,7 +8,7 @@ import ScheduleManager from '../components/ScheduleManager';
 function SectionHeader({ icon, title, subtitle }) {
   return (
     <div className="flex items-center gap-3 mb-4">
-      <div className="w-9 h-9 rounded-xl bg-indigo-100 flex items-center justify-center text-lg shrink-0">
+      <div className="w-9 h-9 rounded-xl bg-sky-100 flex items-center justify-center text-lg shrink-0">
         {icon}
       </div>
       <div>
@@ -54,12 +54,12 @@ export default function Settings() {
     <div className="space-y-5">
 
       {/* ── Page Header ── */}
-      <div className="relative -mx-4 px-4 pt-10 pb-6 bg-gradient-to-br from-slate-700 to-slate-900 overflow-hidden">
-        <div className="absolute -top-4 -right-4 w-24 h-24 bg-white/5 rounded-full blur-xl" />
+      <div className="relative -mx-4 px-4 pt-10 pb-6 bg-gradient-to-br from-sky-400 via-sky-500 to-blue-600 overflow-hidden">
+        <div className="absolute -top-4 -right-4 w-24 h-24 bg-white/10 rounded-full blur-xl" />
         <div className="relative">
-          <p className="text-slate-400 text-xs font-semibold uppercase tracking-widest mb-1">Configure</p>
+          <p className="text-sky-100 text-xs font-semibold uppercase tracking-widest mb-1">Configure</p>
           <h1 className="text-2xl font-extrabold text-white tracking-tight">Settings</h1>
-          <p className="text-slate-400 text-xs mt-1">Manage your OJT profile and schedule</p>
+          <p className="text-sky-100 text-xs mt-1">Manage your OJT profile and schedule</p>
         </div>
       </div>
 
@@ -109,7 +109,7 @@ export default function Settings() {
             className={`w-full py-3 rounded-xl font-bold text-sm transition-all duration-300 ${
               infoSaved
                 ? 'bg-emerald-500 text-white scale-95'
-                : 'bg-indigo-600 text-white hover:bg-indigo-700 active:scale-95 shadow-sm shadow-indigo-200'
+                : 'bg-sky-500 text-white hover:bg-sky-600 active:scale-95 shadow-sm shadow-sky-200'
             }`}
           >
             {infoSaved ? '✓ Saved!' : 'Save Information'}
@@ -144,7 +144,7 @@ export default function Settings() {
         </p>
         <div className="mt-3 pt-3 border-t border-slate-200 flex items-center justify-between text-xs text-slate-400">
           <span>Storage: Browser localStorage</span>
-          <span className="badge-indigo">v1.0.0</span>
+          <span className="badge-blue">v1.0.0</span>
         </div>
       </div>
 

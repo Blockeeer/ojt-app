@@ -33,8 +33,8 @@ export default function ScheduleManager({ schedule, onUpdate }) {
     setEditing(false);
   };
 
-  const PHASE_COLORS = ['from-indigo-500 to-violet-600', 'from-teal-500 to-emerald-600'];
-  const PHASE_BG     = ['bg-indigo-50', 'bg-teal-50'];
+  const PHASE_COLORS = ['from-sky-500 to-blue-600', 'from-teal-500 to-emerald-600'];
+  const PHASE_BG     = ['bg-sky-50', 'bg-teal-50'];
 
   return (
     <div className="space-y-3">
@@ -71,8 +71,8 @@ export default function ScheduleManager({ schedule, onUpdate }) {
                         onClick={() => toggleWorkDay(idx, d)}
                         className={`px-3 py-1.5 text-xs font-bold rounded-lg border-2 transition-all ${
                           phase.workDays.includes(d)
-                            ? 'bg-indigo-600 text-white border-indigo-600'
-                            : 'bg-white text-slate-500 border-slate-200 hover:border-indigo-300'
+                            ? 'bg-sky-600 text-white border-sky-600'
+                            : 'bg-white text-slate-500 border-slate-200 hover:border-sky-300'
                         }`}
                       >
                         {DAY_LABELS[d]}

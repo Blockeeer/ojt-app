@@ -51,14 +51,14 @@ export default function Dashboard() {
     <div className="space-y-5">
 
       {/* ── Hero Header ── */}
-      <div className="relative -mx-4 px-4 pt-10 pb-8 bg-gradient-to-br from-indigo-600 via-indigo-700 to-violet-700 overflow-hidden">
+      <div className="relative -mx-4 px-4 pt-10 pb-8 bg-gradient-to-br from-sky-400 via-sky-500 to-blue-600 overflow-hidden">
         <div className="absolute -top-6 -right-6 w-32 h-32 bg-white/10 rounded-full blur-2xl" />
-        <div className="absolute bottom-0 left-0 w-24 h-24 bg-violet-400/20 rounded-full blur-xl" />
+        <div className="absolute bottom-0 left-0 w-24 h-24 bg-cyan-400/20 rounded-full blur-xl" />
 
         <div className="relative">
           <div className="flex items-start justify-between">
             <div>
-              <p className="text-indigo-200 text-sm font-medium">{formatDateDisplay(parseDate(today))}</p>
+              <p className="text-sky-100 text-sm font-medium">{formatDateDisplay(parseDate(today))}</p>
               <h1 className="text-2xl font-extrabold text-white mt-0.5 tracking-tight">
                 {settings.studentName ? `Hi, ${settings.studentName.split(' ')[0]}` : 'OJT Tracker'}
               </h1>
@@ -72,7 +72,7 @@ export default function Dashboard() {
 
           <div className="mt-5">
             <div className="flex justify-between items-center mb-2">
-              <span className="text-indigo-200 text-xs font-semibold">Overall Progress</span>
+              <span className="text-sky-100 text-xs font-semibold">Overall Progress</span>
               <span className="text-white text-sm font-extrabold">{stats.percentComplete.toFixed(1)}%</span>
             </div>
             <div className="h-2.5 bg-white/20 rounded-full overflow-hidden">
@@ -81,7 +81,7 @@ export default function Dashboard() {
                 style={{ width: `${stats.percentComplete}%` }}
               />
             </div>
-            <p className="text-indigo-200 text-xs mt-2">
+            <p className="text-sky-100 text-xs mt-2">
               {stats.totalRendered}h rendered · {stats.remainingHours}h remaining · {settings.requiredHours}h total
             </p>
           </div>
@@ -116,22 +116,22 @@ export default function Dashboard() {
           ) : todayWorking && todayPhase ? (
             <div className="space-y-3">
               <div className="flex items-center gap-2 flex-wrap">
-                <span className="badge-indigo">{todayPhase.label}</span>
+                <span className="badge-blue">{todayPhase.label}</span>
                 <span className="text-xs text-slate-400">
                   {todayPhase.workDays.map((d) => DAY_NAMES[d]).join(' · ')}
                 </span>
               </div>
 
               <div className="grid grid-cols-2 gap-2">
-                <div className="bg-indigo-50 rounded-xl p-3">
-                  <p className="text-[10px] font-bold uppercase tracking-wider text-indigo-400 mb-1">Morning</p>
-                  <p className="text-sm font-bold text-indigo-700">
+                <div className="bg-sky-50 rounded-xl p-3">
+                  <p className="text-[10px] font-bold uppercase tracking-wider text-sky-400 mb-1">Morning</p>
+                  <p className="text-sm font-bold text-sky-700">
                     {formatTime12h(todayPhase.shiftStart)} – {formatTime12h(todayPhase.lunchStart)}
                   </p>
                 </div>
-                <div className="bg-violet-50 rounded-xl p-3">
-                  <p className="text-[10px] font-bold uppercase tracking-wider text-violet-400 mb-1">Afternoon</p>
-                  <p className="text-sm font-bold text-violet-700">
+                <div className="bg-blue-50 rounded-xl p-3">
+                  <p className="text-[10px] font-bold uppercase tracking-wider text-blue-400 mb-1">Afternoon</p>
+                  <p className="text-sm font-bold text-blue-700">
                     {formatTime12h(todayPhase.lunchEnd)} – {formatTime12h(todayPhase.shiftEnd)}
                   </p>
                 </div>
