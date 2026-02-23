@@ -4,17 +4,8 @@ import { DEFAULT_SETTINGS, DEFAULT_SCHEDULE } from '../data/defaults';
 import { DEFAULT_HOLIDAYS } from '../data/philippineHolidays';
 import DatePicker from '../components/DatePicker';
 import AttendanceTable from '../components/AttendanceTable';
-import {
-  getTodayStr,
-  getPhaseForDate,
-  isWorkingDay,
-} from '../utils/dateHelpers';
-import {
-  calculateRenderedHours,
-  validateTimeEntry,
-  generateId,
-  formatTime12h,
-} from '../utils/timeCalculator';
+import { getTodayStr, getPhaseForDate, isWorkingDay } from '../utils/dateHelpers';
+import { calculateRenderedHours, validateTimeEntry, generateId, formatTime12h } from '../utils/timeCalculator';
 
 export default function Attendance() {
   const [attendance, setAttendance] = useLocalStorage(STORAGE_KEYS.ATTENDANCE, []);
@@ -24,7 +15,6 @@ export default function Attendance() {
 
   const today = getTodayStr();
 
-  // Form state
   const [selectedDate, setSelectedDate] = useState(today);
   const [timeIn, setTimeIn]             = useState('');
   const [timeOut, setTimeOut]           = useState('');
@@ -34,12 +24,10 @@ export default function Attendance() {
   const [errors, setErrors]             = useState([]);
   const [successMsg, setSuccessMsg]     = useState('');
 
-  // Derived schedule info for selected date
-  const phase             = getPhaseForDate(selectedDate, schedule);
-  const selectedWorking   = isWorkingDay(selectedDate, schedule, holidays);
-  const selectedHoliday   = holidays.find((h) => h.date === selectedDate);
+  const phase           = getPhaseForDate(selectedDate, schedule);
+  const selectedWorking = isWorkingDay(selectedDate, schedule, holidays);
+  const selectedHoliday = holidays.find((h) => h.date === selectedDate);
 
-  // Pre-fill form whenever selectedDate changes
   useEffect(() => {
     const existing = attendance.find((r) => r.date === selectedDate);
     if (existing) {
@@ -60,7 +48,6 @@ export default function Attendance() {
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [selectedDate]);
 
-  // Live preview of calculated hours
   const previewHours =
     !isAbsent && timeIn && timeOut && phase
       ? calculateRenderedHours(timeIn, timeOut, phase)
@@ -72,17 +59,10 @@ export default function Attendance() {
     setSuccessMsg('');
 
     let renderedHours = 0;
-
     if (!isAbsent && selectedWorking) {
-      if (!phase) {
-        setErrors(['This date is not within any defined schedule phase.']);
-        return;
-      }
+      if (!phase) { setErrors(['This date is not within any defined schedule phase.']); return; }
       const { valid, errors: valErrors } = validateTimeEntry(timeIn, timeOut, phase);
-      if (!valid) {
-        setErrors(valErrors);
-        return;
-      }
+      if (!valid) { setErrors(valErrors); return; }
       renderedHours = calculateRenderedHours(timeIn, timeOut, phase);
     }
 
@@ -112,53 +92,56 @@ export default function Attendance() {
   const handleDelete = (id) => {
     if (window.confirm('Delete this attendance entry? This cannot be undone.')) {
       setAttendance((prev) => prev.filter((r) => r.id !== id));
-      if (editId === id) {
-        setEditId(null);
-        setSelectedDate(today);
-      }
+      if (editId === id) { setEditId(null); setSelectedDate(today); }
     }
   };
 
-  const handleCancelEdit = () => {
-    setEditId(null);
-    setSelectedDate(today);
-  };
-
   return (
-    <div className="pt-6 space-y-5">
-      <h1 className="text-xl font-bold text-gray-900">Attendance</h1>
+    <div className="space-y-5">
 
-      {/* Time Entry Form */}
+      {/* ── Page Header ── */}
+      <div className="relative -mx-4 px-4 pt-10 pb-6 bg-gradient-to-br from-violet-600 to-indigo-700 overflow-hidden">
+        <div className="absolute -top-4 -right-4 w-24 h-24 bg-white/10 rounded-full blur-xl" />
+        <div className="relative">
+          <p className="text-violet-200 text-xs font-semibold uppercase tracking-widest mb-1">Log Time</p>
+          <h1 className="text-2xl font-extrabold text-white tracking-tight">
+            {editId ? 'Edit Attendance' : 'Attendance'}
+          </h1>
+          <p className="text-violet-200 text-xs mt-1">
+            {attendance.length} {attendance.length === 1 ? 'entry' : 'entries'} recorded
+          </p>
+        </div>
+      </div>
+
+      {/* ── Time Entry Form ── */}
       <div className="card space-y-4">
         <div className="flex items-center justify-between">
-          <h2 className="font-semibold text-gray-800">
+          <h2 className="font-bold text-slate-800">
             {editId ? 'Edit Entry' : 'Log Attendance'}
           </h2>
-          {editId && (
-            <span className="bg-indigo-100 text-indigo-700 text-xs font-medium px-2 py-0.5 rounded-full">
-              Editing
-            </span>
-          )}
+          {editId && <span className="badge-indigo">Editing</span>}
         </div>
 
-        {/* Error messages */}
         {errors.length > 0 && (
-          <div className="bg-red-50 border border-red-200 rounded-lg p-3 space-y-1">
+          <div className="bg-red-50 border border-red-200 rounded-xl p-3 space-y-1">
             {errors.map((e, i) => (
-              <p key={i} className="text-red-600 text-sm">{e}</p>
+              <p key={i} className="text-red-600 text-sm font-medium">{e}</p>
             ))}
           </div>
         )}
 
-        {/* Success message */}
         {successMsg && (
-          <div className="bg-emerald-50 border border-emerald-200 rounded-lg p-3">
-            <p className="text-emerald-700 text-sm font-medium">{successMsg}</p>
+          <div className="bg-emerald-50 border border-emerald-200 rounded-xl p-3 flex items-center gap-2">
+            <div className="w-5 h-5 rounded-full bg-emerald-400 flex items-center justify-center shrink-0">
+              <svg className="w-3 h-3 text-white" fill="none" viewBox="0 0 24 24" strokeWidth={3} stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" d="M4.5 12.75l6 6 9-13.5" />
+              </svg>
+            </div>
+            <p className="text-emerald-700 text-sm font-semibold">{successMsg}</p>
           </div>
         )}
 
         <form onSubmit={handleSubmit} className="space-y-4">
-          {/* Date picker */}
           <DatePicker
             label="Date"
             value={selectedDate}
@@ -168,90 +151,94 @@ export default function Attendance() {
             isWorkingDay={selectedWorking}
           />
 
-          {/* Holiday notice */}
           {selectedHoliday && (
-            <div className="bg-blue-50 border border-blue-100 rounded-lg p-3">
-              <p className="text-blue-700 text-sm font-medium">
-                🎌 {selectedHoliday.name}
-              </p>
-              <p className="text-blue-600 text-xs mt-0.5 capitalize">
-                {selectedHoliday.type} holiday — this day is excluded from the schedule.
-              </p>
+            <div className="flex items-start gap-3 bg-blue-50 border border-blue-100 rounded-xl p-3">
+              <span className="text-xl shrink-0">🎌</span>
+              <div>
+                <p className="text-sm font-bold text-blue-800">{selectedHoliday.name}</p>
+                <p className="text-xs text-blue-600 mt-0.5 capitalize">
+                  {selectedHoliday.type} holiday — excluded from schedule
+                </p>
+              </div>
             </div>
           )}
 
-          {/* Non-working rest day notice */}
           {!selectedWorking && !selectedHoliday && (
-            <div className="bg-amber-50 border border-amber-100 rounded-lg p-3">
-              <p className="text-amber-700 text-sm font-medium">Rest Day</p>
-              <p className="text-amber-600 text-xs mt-0.5">
-                This is not a scheduled working day. Saving will record 0 hours (for notes only).
-              </p>
+            <div className="flex items-start gap-3 bg-amber-50 border border-amber-100 rounded-xl p-3">
+              <span className="text-xl shrink-0">😴</span>
+              <div>
+                <p className="text-sm font-bold text-amber-800">Rest Day</p>
+                <p className="text-xs text-amber-600 mt-0.5">
+                  Not a scheduled working day. Saving records 0 hours.
+                </p>
+              </div>
             </div>
           )}
 
-          {/* Absent toggle — only show on working days */}
           {selectedWorking && (
-            <label className="flex items-center gap-2.5 cursor-pointer">
+            <label className="flex items-center gap-3 p-3 bg-slate-50 rounded-xl cursor-pointer hover:bg-slate-100 transition-colors">
               <input
                 type="checkbox"
                 checked={isAbsent}
                 onChange={(e) => setIsAbsent(e.target.checked)}
-                className="w-4 h-4 rounded border-gray-300 text-indigo-600 focus:ring-indigo-500"
+                className="w-4 h-4 rounded border-slate-300 text-indigo-600 focus:ring-indigo-500"
               />
-              <span className="text-sm text-gray-700">Mark as Absent (0 hours)</span>
+              <div>
+                <p className="text-sm font-semibold text-slate-700">Mark as Absent</p>
+                <p className="text-xs text-slate-400">Records 0 hours for this day</p>
+              </div>
             </label>
           )}
 
-          {/* Time inputs — only show when working day and not absent */}
           {selectedWorking && !isAbsent && (
             <>
-              <div>
-                <label className="label">Time In</label>
-                <input
-                  type="time"
-                  value={timeIn}
-                  onChange={(e) => setTimeIn(e.target.value)}
-                  className="input-field"
-                />
-                {phase && (
-                  <p className="text-xs text-gray-400 mt-1">
-                    Scheduled start: {formatTime12h(phase.shiftStart)} — arrivals before this are clamped.
-                  </p>
-                )}
+              <div className="grid grid-cols-2 gap-3">
+                <div>
+                  <label className="label">Time In</label>
+                  <input
+                    type="time"
+                    value={timeIn}
+                    onChange={(e) => setTimeIn(e.target.value)}
+                    className="input-field"
+                  />
+                  {phase && (
+                    <p className="text-[10px] text-slate-400 mt-1">
+                      Sched: {formatTime12h(phase.shiftStart)}
+                    </p>
+                  )}
+                </div>
+                <div>
+                  <label className="label">Time Out</label>
+                  <input
+                    type="time"
+                    value={timeOut}
+                    onChange={(e) => setTimeOut(e.target.value)}
+                    className="input-field"
+                  />
+                  {phase && (
+                    <p className="text-[10px] text-slate-400 mt-1">
+                      Sched: {formatTime12h(phase.shiftEnd)}
+                    </p>
+                  )}
+                </div>
               </div>
 
-              <div>
-                <label className="label">Time Out</label>
-                <input
-                  type="time"
-                  value={timeOut}
-                  onChange={(e) => setTimeOut(e.target.value)}
-                  className="input-field"
-                />
-                {phase && (
-                  <p className="text-xs text-gray-400 mt-1">
-                    Scheduled end: {formatTime12h(phase.shiftEnd)} — departures after this are clamped.
-                  </p>
-                )}
-              </div>
-
-              {/* Live hours preview */}
               {previewHours !== null && (
-                <div className="bg-indigo-50 border border-indigo-100 rounded-lg p-3">
+                <div className="bg-gradient-to-r from-indigo-50 to-violet-50 border border-indigo-100 rounded-xl p-4">
                   <div className="flex items-center justify-between">
-                    <p className="text-sm text-gray-700">Calculated hours</p>
-                    <p className="text-lg font-bold text-indigo-600">{previewHours}h</p>
+                    <div>
+                      <p className="text-xs font-bold text-indigo-500 uppercase tracking-wider">Calculated Hours</p>
+                      <p className="text-[10px] text-indigo-400 mt-0.5">
+                        Lunch {formatTime12h(phase?.lunchStart)}–{formatTime12h(phase?.lunchEnd)} auto-deducted
+                      </p>
+                    </div>
+                    <p className="text-3xl font-extrabold text-indigo-600">{previewHours}h</p>
                   </div>
-                  <p className="text-xs text-gray-400 mt-0.5">
-                    Lunch break ({formatTime12h(phase?.lunchStart)} – {formatTime12h(phase?.lunchEnd)}) auto-deducted
-                  </p>
                 </div>
               )}
             </>
           )}
 
-          {/* Notes */}
           <div>
             <label className="label">Notes (optional)</label>
             <textarea
@@ -259,11 +246,10 @@ export default function Attendance() {
               onChange={(e) => setNotes(e.target.value)}
               rows={2}
               className="input-field resize-none"
-              placeholder="e.g. Remote work, field visit, makeup day..."
+              placeholder="e.g. Remote work, field visit..."
             />
           </div>
 
-          {/* Action buttons */}
           <div className="flex gap-2">
             <button type="submit" className="btn-primary flex-1">
               {editId ? 'Update Entry' : 'Save Entry'}
@@ -271,7 +257,7 @@ export default function Attendance() {
             {editId && (
               <button
                 type="button"
-                onClick={handleCancelEdit}
+                onClick={() => { setEditId(null); setSelectedDate(today); }}
                 className="btn-secondary"
               >
                 Cancel
@@ -281,20 +267,22 @@ export default function Attendance() {
         </form>
       </div>
 
-      {/* Attendance history */}
-      <div className="card">
-        <h2 className="font-semibold text-gray-800 mb-4">
+      {/* ── History ── */}
+      <div>
+        <p className="section-title">
           History
-          <span className="ml-2 text-xs font-normal text-gray-400">
+          <span className="ml-2 normal-case font-medium text-slate-400">
             ({attendance.length} {attendance.length === 1 ? 'entry' : 'entries'})
           </span>
-        </h2>
+        </p>
         <AttendanceTable
           records={attendance}
           onEdit={handleEdit}
           onDelete={handleDelete}
         />
       </div>
+
+      <div className="h-2" />
     </div>
   );
 }

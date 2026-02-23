@@ -1,49 +1,59 @@
 import { formatDateShort, parseDate } from '../utils/dateHelpers';
 
-const CARDS = (props) => [
+const CARD_CONFIG = (props) => [
   {
     label: 'Hours Rendered',
     value: `${props.totalRendered}h`,
     sub: `of ${props.requiredHours}h required`,
-    valueColor: 'text-indigo-600',
+    icon: '⏱',
+    gradient: 'from-indigo-500 to-indigo-600',
     bg: 'bg-indigo-50',
-    border: 'border-indigo-100',
+    valueColor: 'text-indigo-700',
+    subColor: 'text-indigo-400',
   },
   {
-    label: 'Hours Remaining',
+    label: 'Remaining',
     value: `${props.remainingHours}h`,
-    sub: 'to complete OJT',
-    valueColor: 'text-amber-600',
+    sub: 'hours to finish',
+    icon: '🎯',
+    gradient: 'from-amber-400 to-orange-500',
     bg: 'bg-amber-50',
-    border: 'border-amber-100',
+    valueColor: 'text-amber-700',
+    subColor: 'text-amber-400',
   },
   {
     label: 'Progress',
     value: `${props.percentComplete.toFixed(1)}%`,
     sub: 'completion rate',
-    valueColor: 'text-emerald-600',
+    icon: '📈',
+    gradient: 'from-emerald-400 to-teal-500',
     bg: 'bg-emerald-50',
-    border: 'border-emerald-100',
+    valueColor: 'text-emerald-700',
+    subColor: 'text-emerald-400',
   },
   {
-    label: 'Projected End',
+    label: 'Finish Date',
     value: props.projectedEndDate
       ? formatDateShort(parseDate(props.projectedEndDate))
       : 'N/A',
     sub: props.daysRemaining != null
-      ? `~${props.daysRemaining} working days left`
-      : 'Complete!',
-    valueColor: 'text-purple-600',
-    bg: 'bg-purple-50',
-    border: 'border-purple-100',
+      ? `${props.daysRemaining} days left`
+      : 'OJT Complete!',
+    icon: '📅',
+    gradient: 'from-violet-500 to-purple-600',
+    bg: 'bg-violet-50',
+    valueColor: 'text-violet-700',
+    subColor: 'text-violet-400',
   },
   {
-    label: 'Days Attended',
-    value: props.totalDaysAttended,
-    sub: 'total working days',
-    valueColor: 'text-blue-600',
-    bg: 'bg-blue-50',
-    border: 'border-blue-100',
+    label: 'Days Present',
+    value: String(props.totalDaysAttended),
+    sub: 'working days logged',
+    icon: '✅',
+    gradient: 'from-sky-400 to-blue-500',
+    bg: 'bg-sky-50',
+    valueColor: 'text-sky-700',
+    subColor: 'text-sky-400',
   },
 ];
 
@@ -56,25 +66,25 @@ export default function DashboardCards({
   daysRemaining,
   totalDaysAttended,
 }) {
-  const cards = CARDS({
-    totalRendered,
-    requiredHours,
-    remainingHours,
-    percentComplete,
-    projectedEndDate,
-    daysRemaining,
-    totalDaysAttended,
+  const cards = CARD_CONFIG({
+    totalRendered, requiredHours, remainingHours,
+    percentComplete, projectedEndDate, daysRemaining, totalDaysAttended,
   });
 
   return (
     <div className="grid grid-cols-2 gap-3">
-      {cards.map(({ label, value, sub, valueColor, bg, border }) => (
-        <div key={label} className={`rounded-xl p-4 border ${bg} ${border}`}>
-          <p className="text-xs text-gray-500 font-medium uppercase tracking-wide">
+      {cards.map(({ label, value, sub, icon, bg, valueColor, subColor }) => (
+        <div key={label} className={`${bg} rounded-2xl p-4 relative overflow-hidden`}>
+          {/* Icon */}
+          <div className="text-2xl mb-2 leading-none">{icon}</div>
+          {/* Label */}
+          <p className="text-[10px] font-bold uppercase tracking-widest text-slate-500 mb-0.5">
             {label}
           </p>
-          <p className={`text-2xl font-bold mt-1 ${valueColor}`}>{value}</p>
-          <p className="text-xs text-gray-500 mt-0.5 leading-snug">{sub}</p>
+          {/* Value */}
+          <p className={`text-xl font-extrabold ${valueColor} leading-tight`}>{value}</p>
+          {/* Sub */}
+          <p className={`text-[11px] font-medium mt-0.5 ${subColor}`}>{sub}</p>
         </div>
       ))}
     </div>

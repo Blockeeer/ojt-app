@@ -9,13 +9,10 @@ export default function ScheduleManager({ schedule, onUpdate }) {
   const [editing, setEditing] = useState(false);
   const [draft, setDraft]     = useState(schedule);
 
-  const handleDraftChange = (phaseIdx, field, value) => {
-    setDraft((prev) =>
-      prev.map((p, i) => (i === phaseIdx ? { ...p, [field]: value } : p))
-    );
-  };
+  const handleDraftChange = (phaseIdx, field, value) =>
+    setDraft((prev) => prev.map((p, i) => (i === phaseIdx ? { ...p, [field]: value } : p)));
 
-  const toggleWorkDay = (phaseIdx, day) => {
+  const toggleWorkDay = (phaseIdx, day) =>
     setDraft((prev) =>
       prev.map((p, i) => {
         if (i !== phaseIdx) return p;
@@ -25,173 +22,140 @@ export default function ScheduleManager({ schedule, onUpdate }) {
         return { ...p, workDays: days };
       })
     );
-  };
 
   const handleSave = () => {
-    // Recompute netDailyHours based on shift/lunch times
     const updated = draft.map((p) => {
-      const toMin  = (t) => { const [h, m] = t.split(':').map(Number); return h * 60 + m; };
-      const shift  = toMin(p.shiftEnd)   - toMin(p.shiftStart);
-      const lunch  = toMin(p.lunchEnd)   - toMin(p.lunchStart);
-      const net    = Math.max(0, (shift - lunch) / 60);
+      const toMin = (t) => { const [h, m] = t.split(':').map(Number); return h * 60 + m; };
+      const net   = Math.max(0, (toMin(p.shiftEnd) - toMin(p.shiftStart) - (toMin(p.lunchEnd) - toMin(p.lunchStart))) / 60);
       return { ...p, netDailyHours: Math.round(net * 100) / 100 };
     });
     onUpdate(updated);
     setEditing(false);
   };
 
-  const handleCancel = () => {
-    setDraft(schedule);
-    setEditing(false);
-  };
+  const PHASE_COLORS = ['from-indigo-500 to-violet-600', 'from-teal-500 to-emerald-600'];
+  const PHASE_BG     = ['bg-indigo-50', 'bg-teal-50'];
 
   return (
     <div className="space-y-3">
       {draft.map((phase, idx) => (
-        <div key={phase.id} className="card">
-          <div className="flex items-start justify-between mb-3">
-            <div>
-              <h3 className="font-semibold text-gray-800">{phase.label}</h3>
-              <p className="text-xs text-gray-400 mt-0.5">
-                {formatDateShort(parseDate(phase.startDate))} –{' '}
-                {phase.endDate ? formatDateShort(parseDate(phase.endDate)) : 'Ongoing'}
-              </p>
+        <div key={phase.id} className={`rounded-2xl border border-slate-100 overflow-hidden`}>
+          {/* Phase header */}
+          <div className={`bg-gradient-to-r ${PHASE_COLORS[idx] || 'from-slate-500 to-slate-600'} px-4 py-3`}>
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-white font-bold text-sm">{phase.label}</p>
+                <p className="text-white/70 text-xs mt-0.5">
+                  {formatDateShort(parseDate(phase.startDate))} –{' '}
+                  {phase.endDate ? formatDateShort(parseDate(phase.endDate)) : 'Ongoing'}
+                </p>
+              </div>
+              <div className="bg-white/20 rounded-xl px-3 py-1.5 text-right">
+                <p className="text-white font-extrabold text-lg leading-none">{phase.netDailyHours}h</p>
+                <p className="text-white/70 text-[10px]">per day</p>
+              </div>
             </div>
-            <span className="bg-indigo-50 text-indigo-600 text-xs font-bold px-2 py-1 rounded-lg">
-              {phase.netDailyHours}h/day
-            </span>
           </div>
 
-          {editing ? (
-            <div className="space-y-3">
-              {/* Working days */}
-              <div>
-                <p className="label">Working Days</p>
-                <div className="flex gap-1.5 flex-wrap">
-                  {ALL_WEEKDAYS.map((d) => (
-                    <button
-                      key={d}
-                      type="button"
-                      onClick={() => toggleWorkDay(idx, d)}
-                      className={`px-3 py-1.5 text-xs font-medium rounded-lg border transition-colors ${
-                        phase.workDays.includes(d)
-                          ? 'bg-indigo-600 text-white border-indigo-600'
-                          : 'bg-white text-gray-500 border-gray-300'
-                      }`}
-                    >
-                      {DAY_LABELS[d]}
-                    </button>
+          {/* Phase body */}
+          <div className="p-4">
+            {editing ? (
+              <div className="space-y-3">
+                <div>
+                  <p className="label">Working Days</p>
+                  <div className="flex gap-1.5 flex-wrap">
+                    {ALL_WEEKDAYS.map((d) => (
+                      <button
+                        key={d}
+                        type="button"
+                        onClick={() => toggleWorkDay(idx, d)}
+                        className={`px-3 py-1.5 text-xs font-bold rounded-lg border-2 transition-all ${
+                          phase.workDays.includes(d)
+                            ? 'bg-indigo-600 text-white border-indigo-600'
+                            : 'bg-white text-slate-500 border-slate-200 hover:border-indigo-300'
+                        }`}
+                      >
+                        {DAY_LABELS[d]}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+
+                <div className="grid grid-cols-2 gap-2">
+                  {[
+                    ['Shift Start', 'shiftStart'],
+                    ['Shift End',   'shiftEnd'],
+                    ['Lunch Start', 'lunchStart'],
+                    ['Lunch End',   'lunchEnd'],
+                  ].map(([label, field]) => (
+                    <div key={field}>
+                      <label className="label">{label}</label>
+                      <input
+                        type="time"
+                        value={phase[field]}
+                        onChange={(e) => handleDraftChange(idx, field, e.target.value)}
+                        className="input-field"
+                      />
+                    </div>
                   ))}
                 </div>
-              </div>
 
-              {/* Shift times */}
-              <div className="grid grid-cols-2 gap-3">
-                <div>
-                  <label className="label">Shift Start</label>
-                  <input
-                    type="time"
-                    value={phase.shiftStart}
-                    onChange={(e) => handleDraftChange(idx, 'shiftStart', e.target.value)}
-                    className="input-field"
-                  />
-                </div>
-                <div>
-                  <label className="label">Shift End</label>
-                  <input
-                    type="time"
-                    value={phase.shiftEnd}
-                    onChange={(e) => handleDraftChange(idx, 'shiftEnd', e.target.value)}
-                    className="input-field"
-                  />
-                </div>
-                <div>
-                  <label className="label">Lunch Start</label>
-                  <input
-                    type="time"
-                    value={phase.lunchStart}
-                    onChange={(e) => handleDraftChange(idx, 'lunchStart', e.target.value)}
-                    className="input-field"
-                  />
-                </div>
-                <div>
-                  <label className="label">Lunch End</label>
-                  <input
-                    type="time"
-                    value={phase.lunchEnd}
-                    onChange={(e) => handleDraftChange(idx, 'lunchEnd', e.target.value)}
-                    className="input-field"
-                  />
+                <div className="grid grid-cols-2 gap-2">
+                  <div>
+                    <label className="label">Phase Start</label>
+                    <input
+                      type="date"
+                      value={phase.startDate}
+                      onChange={(e) => handleDraftChange(idx, 'startDate', e.target.value)}
+                      className="input-field"
+                    />
+                  </div>
+                  <div>
+                    <label className="label">Phase End</label>
+                    <input
+                      type="date"
+                      value={phase.endDate || ''}
+                      onChange={(e) => handleDraftChange(idx, 'endDate', e.target.value || null)}
+                      className="input-field"
+                    />
+                    {!phase.endDate && <p className="text-[10px] text-slate-400 mt-1">Empty = ongoing</p>}
+                  </div>
                 </div>
               </div>
-
-              {/* Date range */}
-              <div className="grid grid-cols-2 gap-3">
-                <div>
-                  <label className="label">Phase Start</label>
-                  <input
-                    type="date"
-                    value={phase.startDate}
-                    onChange={(e) => handleDraftChange(idx, 'startDate', e.target.value)}
-                    className="input-field"
-                  />
+            ) : (
+              <div className="space-y-2">
+                <div className="flex gap-1.5 flex-wrap">
+                  {phase.workDays.map((d) => (
+                    <span key={d} className="bg-slate-100 text-slate-600 text-xs font-bold px-2 py-0.5 rounded-lg">
+                      {DAY_LABELS[d]}
+                    </span>
+                  ))}
                 </div>
-                <div>
-                  <label className="label">Phase End</label>
-                  <input
-                    type="date"
-                    value={phase.endDate || ''}
-                    onChange={(e) =>
-                      handleDraftChange(idx, 'endDate', e.target.value || null)
-                    }
-                    className="input-field"
-                  />
-                  {!phase.endDate && (
-                    <p className="text-xs text-gray-400 mt-1">Leave empty for open-ended</p>
-                  )}
+                <div className="grid grid-cols-2 gap-2 text-xs">
+                  <div className={`${PHASE_BG[idx] || 'bg-slate-50'} rounded-xl p-2.5`}>
+                    <p className="text-slate-400 font-semibold mb-0.5">Shift</p>
+                    <p className="font-bold text-slate-700">
+                      {formatTime12h(phase.shiftStart)} – {formatTime12h(phase.shiftEnd)}
+                    </p>
+                  </div>
+                  <div className="bg-amber-50 rounded-xl p-2.5">
+                    <p className="text-amber-400 font-semibold mb-0.5">Lunch</p>
+                    <p className="font-bold text-amber-700">
+                      {formatTime12h(phase.lunchStart)} – {formatTime12h(phase.lunchEnd)}
+                    </p>
+                  </div>
                 </div>
               </div>
-            </div>
-          ) : (
-            /* Read-only view */
-            <div className="space-y-2 text-sm text-gray-600">
-              <div className="flex items-center gap-1.5 flex-wrap">
-                {phase.workDays.map((d) => (
-                  <span
-                    key={d}
-                    className="bg-gray-100 text-gray-600 text-xs px-2 py-0.5 rounded"
-                  >
-                    {DAY_LABELS[d]}
-                  </span>
-                ))}
-              </div>
-              <p>
-                Shift:{' '}
-                <span className="font-medium text-gray-800">
-                  {formatTime12h(phase.shiftStart)} – {formatTime12h(phase.shiftEnd)}
-                </span>
-              </p>
-              <p>
-                Lunch:{' '}
-                <span className="font-medium text-gray-800">
-                  {formatTime12h(phase.lunchStart)} – {formatTime12h(phase.lunchEnd)}
-                </span>{' '}
-                <span className="text-xs text-amber-600">(auto-deducted)</span>
-              </p>
-            </div>
-          )}
+            )}
+          </div>
         </div>
       ))}
 
       <div className="flex gap-2">
         {editing ? (
           <>
-            <button onClick={handleSave} className="btn-primary flex-1">
-              Save Schedule
-            </button>
-            <button onClick={handleCancel} className="btn-secondary flex-1">
-              Cancel
-            </button>
+            <button onClick={handleSave} className="btn-primary flex-1">Save Schedule</button>
+            <button onClick={() => { setDraft(schedule); setEditing(false); }} className="btn-secondary flex-1">Cancel</button>
           </>
         ) : (
           <button
