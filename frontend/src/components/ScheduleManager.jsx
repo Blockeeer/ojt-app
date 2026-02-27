@@ -24,12 +24,7 @@ export default function ScheduleManager({ schedule, onUpdate }) {
     );
 
   const handleSave = () => {
-    const updated = draft.map((p) => {
-      const toMin = (t) => { const [h, m] = t.split(':').map(Number); return h * 60 + m; };
-      const net   = Math.max(0, (toMin(p.shiftEnd) - toMin(p.shiftStart) - (toMin(p.lunchEnd) - toMin(p.lunchStart))) / 60);
-      return { ...p, netDailyHours: Math.round(net * 100) / 100 };
-    });
-    onUpdate(updated);
+    onUpdate(draft);
     setEditing(false);
   };
 
@@ -98,6 +93,26 @@ export default function ScheduleManager({ schedule, onUpdate }) {
                       />
                     </div>
                   ))}
+                </div>
+
+                <div>
+                  <p className="label">Daily Hours</p>
+                  <div className="flex gap-2">
+                    {[8, 10].map((h) => (
+                      <button
+                        key={h}
+                        type="button"
+                        onClick={() => handleDraftChange(idx, 'netDailyHours', h)}
+                        className={`flex-1 py-2.5 text-sm font-bold rounded-xl border-2 transition-all ${
+                          phase.netDailyHours === h
+                            ? 'bg-sky-600 text-white border-sky-600'
+                            : 'bg-white text-slate-500 border-slate-200 hover:border-sky-300'
+                        }`}
+                      >
+                        {h}h / day
+                      </button>
+                    ))}
+                  </div>
                 </div>
 
                 <div className="grid grid-cols-2 gap-2">

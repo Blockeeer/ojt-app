@@ -59,7 +59,7 @@ export default function Attendance() {
     setSuccessMsg('');
 
     let renderedHours = 0;
-    if (!isAbsent && selectedWorking) {
+    if (!isAbsent) {
       if (!phase) { setErrors(['This date is not within any defined schedule phase.']); return; }
       const { valid, errors: valErrors } = validateTimeEntry(timeIn, timeOut, phase);
       if (!valid) { setErrors(valErrors); return; }
@@ -157,7 +157,7 @@ export default function Attendance() {
               <div>
                 <p className="text-sm font-bold text-blue-800">{selectedHoliday.name}</p>
                 <p className="text-xs text-blue-600 mt-0.5 capitalize">
-                  {selectedHoliday.type} holiday — excluded from schedule
+                  {selectedHoliday.type} holiday — you can still log attendance
                 </p>
               </div>
             </div>
@@ -169,28 +169,26 @@ export default function Attendance() {
               <div>
                 <p className="text-sm font-bold text-amber-800">Rest Day</p>
                 <p className="text-xs text-amber-600 mt-0.5">
-                  Not a scheduled working day. Saving records 0 hours.
+                  Not a scheduled working day — you can still log attendance
                 </p>
               </div>
             </div>
           )}
 
-          {selectedWorking && (
-            <label className="flex items-center gap-3 p-3 bg-slate-50 rounded-xl cursor-pointer hover:bg-slate-100 transition-colors">
-              <input
-                type="checkbox"
-                checked={isAbsent}
-                onChange={(e) => setIsAbsent(e.target.checked)}
-                className="w-4 h-4 rounded border-slate-300 text-sky-600 focus:ring-sky-500"
-              />
-              <div>
-                <p className="text-sm font-semibold text-slate-700">Mark as Absent</p>
-                <p className="text-xs text-slate-400">Records 0 hours for this day</p>
-              </div>
-            </label>
-          )}
+          <label className="flex items-center gap-3 p-3 bg-slate-50 rounded-xl cursor-pointer hover:bg-slate-100 transition-colors">
+            <input
+              type="checkbox"
+              checked={isAbsent}
+              onChange={(e) => setIsAbsent(e.target.checked)}
+              className="w-4 h-4 rounded border-slate-300 text-sky-600 focus:ring-sky-500"
+            />
+            <div>
+              <p className="text-sm font-semibold text-slate-700">Mark as Absent</p>
+              <p className="text-xs text-slate-400">Records 0 hours for this day</p>
+            </div>
+          </label>
 
-          {selectedWorking && !isAbsent && (
+          {!isAbsent && (
             <>
               <div className="grid grid-cols-2 gap-3">
                 <div>
