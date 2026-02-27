@@ -33,9 +33,10 @@ export function formatTime12h(timeStr) {
  * @param {string} timeIn   - 'HH:mm'
  * @param {string} timeOut  - 'HH:mm'
  * @param {Object} phase    - { shiftStart, shiftEnd, lunchStart, lunchEnd, netDailyHours }
+ * @param {number} [hoursCap] - optional override for max daily hours (e.g. 8 or 10)
  * @returns {number} net hours (e.g. 10.0, 5.5)
  */
-export function calculateRenderedHours(timeIn, timeOut, phase) {
+export function calculateRenderedHours(timeIn, timeOut, phase, hoursCap) {
   if (!timeIn || !timeOut || !phase) return 0;
 
   const shiftStartMin  = timeToMinutes(phase.shiftStart);
@@ -59,7 +60,8 @@ export function calculateRenderedHours(timeIn, timeOut, phase) {
   );
 
   const netMinutes = rawMinutes - lunchOverlap;
-  const netHours   = Math.min(netMinutes / 60, phase.netDailyHours);
+  const cap        = hoursCap != null ? hoursCap : phase.netDailyHours;
+  const netHours   = Math.min(netMinutes / 60, cap);
 
   return Math.round(netHours * 100) / 100;
 }

@@ -20,6 +20,7 @@ export default function Attendance() {
   const [timeOut, setTimeOut]           = useState('');
   const [notes, setNotes]               = useState('');
   const [isAbsent, setIsAbsent]         = useState(false);
+  const [hoursCap, setHoursCap]         = useState(10);
   const [editId, setEditId]             = useState(null);
   const [errors, setErrors]             = useState([]);
   const [successMsg, setSuccessMsg]     = useState('');
@@ -36,12 +37,14 @@ export default function Attendance() {
       setTimeOut(existing.timeOut || '');
       setNotes(existing.notes || '');
       setIsAbsent(!existing.timeIn);
+      setHoursCap(existing.hoursCap || (phase ? phase.netDailyHours : 10));
     } else {
       setEditId(null);
       setTimeIn(phase ? phase.shiftStart : '');
       setTimeOut(phase ? phase.shiftEnd : '');
       setNotes('');
       setIsAbsent(false);
+      setHoursCap(phase ? phase.netDailyHours : 10);
     }
     setErrors([]);
     setSuccessMsg('');
@@ -50,7 +53,7 @@ export default function Attendance() {
 
   const previewHours =
     !isAbsent && timeIn && timeOut && phase
-      ? calculateRenderedHours(timeIn, timeOut, phase)
+      ? calculateRenderedHours(timeIn, timeOut, phase, hoursCap)
       : null;
 
   const handleSubmit = (e) => {
@@ -63,7 +66,7 @@ export default function Attendance() {
       if (!phase) { setErrors(['This date is not within any defined schedule phase.']); return; }
       const { valid, errors: valErrors } = validateTimeEntry(timeIn, timeOut, phase);
       if (!valid) { setErrors(valErrors); return; }
-      renderedHours = calculateRenderedHours(timeIn, timeOut, phase);
+      renderedHours = calculateRenderedHours(timeIn, timeOut, phase, hoursCap);
     }
 
     const entry = {
@@ -72,6 +75,7 @@ export default function Attendance() {
       timeIn:  isAbsent ? null : timeIn,
       timeOut: isAbsent ? null : timeOut,
       renderedHours,
+      hoursCap,
       notes,
     };
 
@@ -218,6 +222,26 @@ export default function Attendance() {
                       Sched: {formatTime12h(phase.shiftEnd)}
                     </p>
                   )}
+                </div>
+              </div>
+
+              <div>
+                <p className="label">Daily Hours Cap</p>
+                <div className="flex gap-2">
+                  {[8, 10].map((h) => (
+                    <button
+                      key={h}
+                      type="button"
+                      onClick={() => setHoursCap(h)}
+                      className={`flex-1 py-2.5 text-sm font-bold rounded-xl border-2 transition-all ${
+                        hoursCap === h
+                          ? 'bg-sky-600 text-white border-sky-600'
+                          : 'bg-white text-slate-500 border-slate-200 hover:border-sky-300'
+                      }`}
+                    >
+                      {h}h / day
+                    </button>
+                  ))}
                 </div>
               </div>
 
