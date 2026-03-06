@@ -27,7 +27,21 @@ export default function Dashboard() {
     const { totalRendered, totalDays } = summarizeAttendance(attendance);
     const remaining  = Math.max(0, settings.requiredHours - totalRendered);
     const percent    = Math.min((totalRendered / settings.requiredHours) * 100, 100);
-    const projected  = projectCompletionDate(remaining, today, schedule, holidays);
+
+    // Subtract future logged entries from remaining so projected date accounts for them
+    const futureLogged = attendance
+      .filter((r) => r.date > today && (r.renderedHours || 0) > 0)
+      .reduce((sum, r) => sum + r.renderedHours, 0);
+    const remainingAfterFuture = Math.max(0, remaining - futureLogged);
+
+    // Find the furthest future logged date to start projecting from
+    const futureDates = attendance
+      .filter((r) => r.date > today && (r.renderedHours || 0) > 0)
+      .map((r) => r.date)
+      .sort();
+    const projectFrom = futureDates.length > 0 ? futureDates[futureDates.length - 1] : today;
+
+    const projected  = projectCompletionDate(remainingAfterFuture, projectFrom, schedule, holidays);
     const daysLeft   = projected ? countExpectedWorkingDays(today, projected, schedule, holidays) : null;
     return {
       totalRendered:     Math.round(totalRendered * 100) / 100,
