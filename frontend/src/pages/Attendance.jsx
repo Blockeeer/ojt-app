@@ -151,7 +151,6 @@ export default function Attendance() {
             value={selectedDate}
             onChange={setSelectedDate}
             min={settings.startDate}
-            max={today}
             isWorkingDay={selectedWorking}
           />
 
