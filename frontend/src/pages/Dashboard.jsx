@@ -41,7 +41,8 @@ export default function Dashboard() {
       .sort();
     const projectFrom = futureDates.length > 0 ? futureDates[futureDates.length - 1] : today;
 
-    const projected  = projectCompletionDate(remainingAfterFuture, projectFrom, schedule, holidays);
+    const futureLoggedSet = new Set(futureDates);
+    const projected  = projectCompletionDate(remainingAfterFuture, projectFrom, schedule, holidays, 500, futureLoggedSet);
     const daysLeft   = projected ? countExpectedWorkingDays(today, projected, schedule, holidays) : null;
     return {
       totalRendered:     Math.round(totalRendered * 100) / 100,

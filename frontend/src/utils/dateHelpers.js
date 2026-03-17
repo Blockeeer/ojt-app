@@ -108,7 +108,8 @@ export function projectCompletionDate(
   startFromDate,
   schedulePhases,
   holidays,
-  maxDays = 500
+  maxDays = 500,
+  loggedDates = new Set()
 ) {
   if (remainingHours <= 0) return startFromDate;
 
@@ -117,7 +118,7 @@ export function projectCompletionDate(
 
   for (let i = 0; i < maxDays; i++) {
     const dateStr = formatDateKey(current);
-    if (isWorkingDay(dateStr, schedulePhases, holidays)) {
+    if (isWorkingDay(dateStr, schedulePhases, holidays) && !loggedDates.has(dateStr)) {
       const phase = getPhaseForDate(dateStr, schedulePhases);
       hoursLeft -= phase.netDailyHours;
       if (hoursLeft <= 0) return dateStr;
