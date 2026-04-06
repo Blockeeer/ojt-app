@@ -37,14 +37,14 @@ export default function Attendance() {
       setTimeOut(existing.timeOut || '');
       setNotes(existing.notes || '');
       setIsAbsent(!existing.timeIn);
-      setHoursCap(existing.hoursCap || (phase ? phase.netDailyHours : 10));
+      setHoursCap(existing.hoursCap || 10);
     } else {
       setEditId(null);
-      setTimeIn(phase ? phase.shiftStart : '');
-      setTimeOut(phase ? phase.shiftEnd : '');
+      setTimeIn(phase ? phase.shiftStart : '07:00');
+      setTimeOut(phase ? phase.shiftEnd : '18:00');
       setNotes('');
       setIsAbsent(false);
-      setHoursCap(phase ? phase.netDailyHours : 10);
+      setHoursCap(10);
     }
     setErrors([]);
     setSuccessMsg('');
