@@ -46,8 +46,8 @@ export function calculateRenderedHours(timeIn, timeOut, phase, hoursCap) {
   const timeInMin      = timeToMinutes(timeIn);
   const timeOutMin     = timeToMinutes(timeOut);
 
-  const effectiveIn    = Math.max(timeInMin, shiftStartMin);
-  const effectiveOut   = Math.min(timeOutMin, shiftEndMin);
+  const effectiveIn    = timeInMin;
+  const effectiveOut   = timeOutMin;
 
   if (effectiveOut <= effectiveIn) return 0;
 
