@@ -23,8 +23,8 @@ export const DEFAULT_SCHEDULE = [
     startDate: '2026-03-28',
     endDate: null, // open-ended
     workDays: [1, 2, 3, 4, 5], // Mon–Fri
-    shiftStart: '08:00',
-    shiftEnd: '17:00',
+    shiftStart: '07:00',
+    shiftEnd: '18:00',
     lunchStart: '12:00',
     lunchEnd: '13:00',
     netDailyHours: 10,
