@@ -27,6 +27,6 @@ export const DEFAULT_SCHEDULE = [
     shiftEnd: '17:00',
     lunchStart: '12:00',
     lunchEnd: '13:00',
-    netDailyHours: 8,
+    netDailyHours: 10,
   },
 ];
