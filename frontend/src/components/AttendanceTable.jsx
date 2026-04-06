@@ -1,6 +1,5 @@
 import { format } from 'date-fns';
 import { formatDateShort, parseDate } from '../utils/dateHelpers';
-import { formatTime12h } from '../utils/timeCalculator';
 
 export default function AttendanceTable({ records, onEdit, onDelete }) {
   if (records.length === 0) {
@@ -23,7 +22,7 @@ export default function AttendanceTable({ records, onEdit, onDelete }) {
     <div className="space-y-2">
       {sorted.map((record) => {
         const hrs = record.renderedHours || 0;
-        const isAbsent = !record.timeIn;
+        const isAbsent = hrs === 0 && !record.hoursCap;
         return (
           <div
             key={record.id}
@@ -45,9 +44,8 @@ export default function AttendanceTable({ records, onEdit, onDelete }) {
                 </span>
               </p>
               <p className="text-xs text-slate-500 mt-0.5 truncate">
-                {record.timeIn
-                  ? `${formatTime12h(record.timeIn)} – ${formatTime12h(record.timeOut)}`
-                  : 'Absent'}
+                {isAbsent ? 'Absent' : `${hrs}h logged`}
+                {record.notes ? ` · ${record.notes}` : ''}
               </p>
             </div>
 
@@ -62,7 +60,7 @@ export default function AttendanceTable({ records, onEdit, onDelete }) {
             <div className="flex gap-1 shrink-0">
               <button
                 onClick={() => onEdit(record)}
-                className="w-8 h-8 flex items-center justify-center rounded-lg bg-indigo-50 text-indigo-600 hover:bg-indigo-100 transition-colors"
+                className="w-8 h-8 flex items-center justify-center rounded-lg bg-sky-50 text-sky-600 hover:bg-sky-100 transition-colors"
               >
                 <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor">
                   <path strokeLinecap="round" strokeLinejoin="round" d="M16.862 4.487l1.687-1.688a1.875 1.875 0 112.652 2.652L10.582 16.07a4.5 4.5 0 01-1.897 1.13L6 18l.8-2.685a4.5 4.5 0 011.13-1.897l8.932-8.931zm0 0L19.5 7.125" />

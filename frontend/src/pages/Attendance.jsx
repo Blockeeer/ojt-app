@@ -4,8 +4,8 @@ import { DEFAULT_SETTINGS, DEFAULT_SCHEDULE } from '../data/defaults';
 import { DEFAULT_HOLIDAYS } from '../data/philippineHolidays';
 import DatePicker from '../components/DatePicker';
 import AttendanceTable from '../components/AttendanceTable';
-import { getTodayStr, getPhaseForDate, isWorkingDay } from '../utils/dateHelpers';
-import { calculateRenderedHours, validateTimeEntry, generateId, formatTime12h } from '../utils/timeCalculator';
+import { getTodayStr, isWorkingDay } from '../utils/dateHelpers';
+import { generateId } from '../utils/timeCalculator';
 
 export default function Attendance() {
   const [attendance, setAttendance] = useLocalStorage(STORAGE_KEYS.ATTENDANCE, []);
@@ -16,8 +16,6 @@ export default function Attendance() {
   const today = getTodayStr();
 
   const [selectedDate, setSelectedDate] = useState(today);
-  const [timeIn, setTimeIn]             = useState('');
-  const [timeOut, setTimeOut]           = useState('');
   const [notes, setNotes]               = useState('');
   const [isAbsent, setIsAbsent]         = useState(false);
   const [hoursCap, setHoursCap]         = useState(10);
@@ -25,7 +23,6 @@ export default function Attendance() {
   const [errors, setErrors]             = useState([]);
   const [successMsg, setSuccessMsg]     = useState('');
 
-  const phase           = getPhaseForDate(selectedDate, schedule);
   const selectedWorking = isWorkingDay(selectedDate, schedule, holidays);
   const selectedHoliday = holidays.find((h) => h.date === selectedDate);
 
@@ -33,15 +30,11 @@ export default function Attendance() {
     const existing = attendance.find((r) => r.date === selectedDate);
     if (existing) {
       setEditId(existing.id);
-      setTimeIn(existing.timeIn || '');
-      setTimeOut(existing.timeOut || '');
       setNotes(existing.notes || '');
-      setIsAbsent(!existing.timeIn);
+      setIsAbsent(existing.renderedHours === 0 && !existing.hoursCap);
       setHoursCap(existing.hoursCap || 10);
     } else {
       setEditId(null);
-      setTimeIn(phase ? phase.shiftStart : '07:00');
-      setTimeOut(phase ? phase.shiftEnd : '18:00');
       setNotes('');
       setIsAbsent(false);
       setHoursCap(10);
@@ -51,31 +44,20 @@ export default function Attendance() {
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [selectedDate]);
 
-  const previewHours =
-    !isAbsent && timeIn && timeOut && phase
-      ? calculateRenderedHours(timeIn, timeOut, phase, hoursCap)
-      : null;
-
   const handleSubmit = (e) => {
     e.preventDefault();
     setErrors([]);
     setSuccessMsg('');
 
-    let renderedHours = 0;
-    if (!isAbsent) {
-      if (!phase) { setErrors(['This date is not within any defined schedule phase.']); return; }
-      const { valid, errors: valErrors } = validateTimeEntry(timeIn, timeOut, phase);
-      if (!valid) { setErrors(valErrors); return; }
-      renderedHours = calculateRenderedHours(timeIn, timeOut, phase, hoursCap);
-    }
+    const renderedHours = isAbsent ? 0 : hoursCap;
 
     const entry = {
       id: editId || generateId(),
       date: selectedDate,
-      timeIn:  isAbsent ? null : timeIn,
-      timeOut: isAbsent ? null : timeOut,
+      timeIn: null,
+      timeOut: null,
       renderedHours,
-      hoursCap,
+      hoursCap: isAbsent ? null : hoursCap,
       notes,
     };
 
@@ -166,18 +148,6 @@ export default function Attendance() {
             </div>
           )}
 
-          {!selectedWorking && !selectedHoliday && (
-            <div className="flex items-start gap-3 bg-amber-50 border border-amber-100 rounded-xl p-3">
-              <span className="text-xl shrink-0">😴</span>
-              <div>
-                <p className="text-sm font-bold text-amber-800">Rest Day</p>
-                <p className="text-xs text-amber-600 mt-0.5">
-                  Not a scheduled working day — you can still log attendance
-                </p>
-              </div>
-            </div>
-          )}
-
           <label className="flex items-center gap-3 p-3 bg-slate-50 rounded-xl cursor-pointer hover:bg-slate-100 transition-colors">
             <input
               type="checkbox"
@@ -193,70 +163,32 @@ export default function Attendance() {
 
           {!isAbsent && (
             <>
-              <div className="grid grid-cols-2 gap-3">
-                <div>
-                  <label className="label">Time In</label>
-                  <input
-                    type="time"
-                    value={timeIn}
-                    onChange={(e) => setTimeIn(e.target.value)}
-                    className="input-field"
-                  />
-                  {phase && (
-                    <p className="text-[10px] text-slate-400 mt-1">
-                      Sched: {formatTime12h(phase.shiftStart)}
-                    </p>
-                  )}
-                </div>
-                <div>
-                  <label className="label">Time Out</label>
-                  <input
-                    type="time"
-                    value={timeOut}
-                    onChange={(e) => setTimeOut(e.target.value)}
-                    className="input-field"
-                  />
-                  {phase && (
-                    <p className="text-[10px] text-slate-400 mt-1">
-                      Sched: {formatTime12h(phase.shiftEnd)}
-                    </p>
-                  )}
-                </div>
-              </div>
-
               <div>
-                <p className="label">Daily Hours Cap</p>
+                <p className="label">Hours for this day</p>
                 <div className="flex gap-2">
                   {[8, 10].map((h) => (
                     <button
                       key={h}
                       type="button"
                       onClick={() => setHoursCap(h)}
-                      className={`flex-1 py-2.5 text-sm font-bold rounded-xl border-2 transition-all ${
+                      className={`flex-1 py-3 text-base font-bold rounded-xl border-2 transition-all ${
                         hoursCap === h
-                          ? 'bg-sky-600 text-white border-sky-600'
+                          ? 'bg-sky-600 text-white border-sky-600 shadow-md shadow-sky-200'
                           : 'bg-white text-slate-500 border-slate-200 hover:border-sky-300'
                       }`}
                     >
-                      {h}h / day
+                      {h} hours
                     </button>
                   ))}
                 </div>
               </div>
 
-              {previewHours !== null && (
-                <div className="bg-gradient-to-r from-sky-50 to-blue-50 border border-sky-100 rounded-xl p-4">
-                  <div className="flex items-center justify-between">
-                    <div>
-                      <p className="text-xs font-bold text-sky-500 uppercase tracking-wider">Calculated Hours</p>
-                      <p className="text-[10px] text-sky-400 mt-0.5">
-                        Lunch {formatTime12h(phase?.lunchStart)}–{formatTime12h(phase?.lunchEnd)} auto-deducted
-                      </p>
-                    </div>
-                    <p className="text-3xl font-extrabold text-sky-600">{previewHours}h</p>
-                  </div>
+              <div className="bg-gradient-to-r from-sky-50 to-blue-50 border border-sky-100 rounded-xl p-4">
+                <div className="flex items-center justify-between">
+                  <p className="text-xs font-bold text-sky-500 uppercase tracking-wider">Hours to Record</p>
+                  <p className="text-3xl font-extrabold text-sky-600">{hoursCap}h</p>
                 </div>
-              )}
+              </div>
             </>
           )}
 
